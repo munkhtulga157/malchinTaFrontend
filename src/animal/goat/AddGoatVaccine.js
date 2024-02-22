@@ -24,27 +24,18 @@ export default function AddGoatVaccine({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
         const isConnected = await checkInternetConnection();
         if (!isConnected) {
           setError("Интернэт холболтоо шалгана уу");
           return;
         }
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -55,23 +46,13 @@ export default function AddGoatVaccine({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
-      const isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        setError("Интернэт холболтоо шалгана уу");
-        return;
-      }
-
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-
       const uriParts = photo.split(".");
       const fileType = uriParts[uriParts.length - 1];
-
       const formData = new FormData();
       formData.append("userId", id);
       formData.append("type", type);
@@ -81,13 +62,11 @@ export default function AddGoatVaccine({ navigation }) {
         name: `photo.${fileType}`,
       });
       formData.append("description", description);
-
       await axios.post(`${URL}/vaccine`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       navigation.navigate("GoatVaccine");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -98,9 +77,7 @@ export default function AddGoatVaccine({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -114,7 +91,6 @@ export default function AddGoatVaccine({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -131,21 +107,17 @@ export default function AddGoatVaccine({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <ImageButton
             text={"Зураг оруулах"}
             onPress={toggleModal}
             photo={photo}
           />
-
           <BigInput
             text={"Тайлбар"}
             value={description}
             onChangeText={setDescription}
           />
-
           <SubmitButton onPress={handleAddVaccine} text={"Нэмэх"} />
-
           <Modal
             animationType="fade"
             transparent={true}

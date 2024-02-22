@@ -20,7 +20,6 @@ export default function DeleteNewsModal({
           <Text style={styles.text}>
             Мэдээллийг устгахдаа итгэлтэй байна уу
           </Text>
-
           <YesNoButton
             onPressYes={handleDelete}
             yesText={"Тийм"}

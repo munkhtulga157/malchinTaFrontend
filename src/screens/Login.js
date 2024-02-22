@@ -37,16 +37,13 @@ export default function Login({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-
+      setError(null);
       const storedItem = await AsyncStorage.getItem("registrationNumber");
-
       if (storedItem) {
         setRegistrationNumber(storedItem);
       }
     };
-
-    fetchData().finally(() => setLoading(false));
+    fetchData();
   }, []);
 
   const handleTogglePasswordVisibility = () => {
@@ -62,24 +59,19 @@ export default function Login({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const response = await axios.post(`${URL}/user/login`, {
         registrationNumber,
         password,
       });
-
       const token = await response.data.token;
       const json = await response.data.data;
-
       await AsyncStorage.setItem("token", JSON.stringify(token));
       await AsyncStorage.setItem("data", JSON.stringify(json));
-
       if (rememberMe === true) {
         await AsyncStorage.setItem("registrationNumber", registrationNumber);
       } else {
         await AsyncStorage.removeItem("registrationNumber");
       }
-
       navigation.navigate("Home");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -99,15 +91,12 @@ export default function Login({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Нэвтрэх</Text>
-
           {error && <ErrorText error={error} />}
-
           <Input
             text={"Регистрийн дугаар"}
             value={registrationNumber}
             onChangeText={setRegistrationNumber}
           />
-
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Нууц үг (6 оронтой)</Text>
             <View style={styles.input}>
@@ -130,7 +119,6 @@ export default function Login({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
-
           <TouchableOpacity
             onPress={handleCheckboxChange}
             style={styles.checkboxContainer}
@@ -142,13 +130,11 @@ export default function Login({ navigation }) {
               )}
             </View>
           </TouchableOpacity>
-
           <SubmitButton
             style={styles.button}
             text={"Нэвтрэх"}
             onPress={handleLogin}
           />
-
           <View style={styles.buttonContainer}>
             <Text style={styles.button}>Бүртгэлгүй юу?</Text>
             <TouchableOpacity onPress={handleRegister}>

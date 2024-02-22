@@ -39,15 +39,12 @@ export default function Register({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const response = await axios.post(`${URL}/user/register`, {
         registrationNumber,
         password,
       });
-
       const id = response.data.data._id;
       await AsyncStorage.setItem("id", id);
-
       navigation.navigate("AddInfo");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -67,15 +64,12 @@ export default function Register({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Бүртгүүлэх</Text>
-
           {error && <ErrorText error={error} />}
-
           <MyInput
             text={"Регистрийн дугаар"}
             value={registrationNumber}
             onChangeText={setRegistrationNumber}
           />
-
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Нууц үг (6 оронтой)</Text>
             <View style={styles.input}>
@@ -98,9 +92,7 @@ export default function Register({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
-
           <MySubmitButton text={"Бүртгүүлэх"} onPress={handleRegister} />
-
           <View style={styles.buttonContainer}>
             <Text style={styles.button}>Бүртгэлтэй юу?</Text>
             <TouchableOpacity onPress={handleLogin}>

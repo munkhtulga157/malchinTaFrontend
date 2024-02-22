@@ -40,31 +40,21 @@ export default function UserNews({ navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemId, setItemId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const news = await AsyncStorage.getItem("userNews");
-
-          if (news) {
-            const data = JSON.parse(news);
-
-            setNews(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const news = await AsyncStorage.getItem("userNews");
+        if (news) {
+          const data = JSON.parse(news);
+          setNews(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -72,7 +62,6 @@ export default function UserNews({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -80,40 +69,23 @@ export default function UserNews({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/news/${id}`);
-
-      setNews(response.data.data);
-
-      const json = await response.data.data;
-
-      await AsyncStorage.setItem("userNews", JSON.stringify(json));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/news/${id}`);
+    setNews(response.data.data);
+    const json = await response.data.data;
+    await AsyncStorage.setItem("userNews", JSON.stringify(json));
   };
 
   const handleDelete = async () => {
-    try {
-      if (itemId) {
-        setLoading(true);
-
-        await axios.delete(`${URL}/news/${itemId}`);
-
-        const updatedNews = news.filter((item) => item._id !== itemId);
-
-        setNews(updatedNews);
-
-        setDeleteModalVisible(false);
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
+    const isConnected = await checkInternetConnection();
+    if (!isConnected) {
+      setError("Интернэт холболтоо шалгана уу");
+      return;
     }
+    await axios.delete(`${URL}/news/${itemId}`);
+    const updatedNews = news.filter((item) => item._id !== itemId);
+    setNews(updatedNews);
+    setDeleteModalVisible(false);
   };
 
   const truncateText = (text, fontSize, maxWidth) => {
@@ -190,7 +162,6 @@ export default function UserNews({ navigation }) {
                     />
                   )}
                 </View>
-
                 <View style={styles.textContainer}>
                   <Text style={styles.title}>
                     {truncateText(
@@ -199,7 +170,6 @@ export default function UserNews({ navigation }) {
                       Dimensions.get("window").width - 120
                     )}
                   </Text>
-
                   <Text style={styles.description}>
                     {truncateText(
                       item.description,
@@ -207,10 +177,8 @@ export default function UserNews({ navigation }) {
                       Dimensions.get("window").width - 120
                     )}
                   </Text>
-
                   <Text style={styles.date}>{formatDate(item.date)}</Text>
                 </View>
-
                 <TouchableOpacity
                   onPress={() => handleDeleteIcon(item._id)}
                   style={styles.iconContainer}
@@ -224,7 +192,6 @@ export default function UserNews({ navigation }) {
               </TouchableOpacity>
             )}
           />
-
           <UserNewsModal
             isVisible={modalVisible}
             closeModal={handleModalClose}
@@ -233,13 +200,11 @@ export default function UserNews({ navigation }) {
             description={description}
             date={date}
           />
-
           <DeleteNewsModal
             isVisible={deleteModalVisible}
             closeModal={handleDeleteModalClose}
             handleDelete={handleDelete}
           />
-
           <SubmitButton onPress={handleAdd} text={"Мэдээлэл нэмэх"} />
         </View>
       )}

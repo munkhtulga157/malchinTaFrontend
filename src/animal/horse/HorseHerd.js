@@ -40,31 +40,21 @@ export default function HorseHerd({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const json = await AsyncStorage.getItem("stallion");
-          if (json) {
-            const data = JSON.parse(json);
-            setAnimal(data);
-          }
-
-          const jsonCount = await AsyncStorage.getItem("stallionCount");
-          if (jsonCount) {
-            const data = JSON.parse(jsonCount);
-            setCount(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch {
-        } finally {
-          setLoading(false);
+        const json = await AsyncStorage.getItem("stallion");
+        if (json) {
+          const data = JSON.parse(json);
+          setAnimal(data);
+        }
+        const jsonCount = await AsyncStorage.getItem("stallionCount");
+        if (jsonCount) {
+          const data = JSON.parse(jsonCount);
+          setCount(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -72,7 +62,6 @@ export default function HorseHerd({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -80,54 +69,35 @@ export default function HorseHerd({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/herd/all/${id}`);
-
-      const stallionIds = response.data.data.map((item) => item.stallionId);
-      const response2 = await axios.get(`${URL}/animal/byIds/${stallionIds}`);
-
-      setAnimal(response2.data.data);
-      setCount(response2.data.count);
-
-      await AsyncStorage.setItem(
-        "stallion",
-        JSON.stringify(response2.data.data)
-      );
-      await AsyncStorage.setItem(
-        "stallionCount",
-        JSON.stringify(response2.data.count)
-      );
-    } catch {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/herd/all/${id}`);
+    const stallionIds = response.data.data.map((item) => item.stallionId);
+    const response2 = await axios.get(`${URL}/animal/byIds/${stallionIds}`);
+    setAnimal(response2.data.data);
+    setCount(response2.data.count);
+    await AsyncStorage.setItem("stallion", JSON.stringify(response2.data.data));
+    await AsyncStorage.setItem(
+      "stallionCount",
+      JSON.stringify(response2.data.count)
+    );
   };
 
   const handleDelete = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       await axios.delete(`${URL}/herd/${itemId}`);
-
       const updatedAnimal = animal.filter((item) => item._id !== itemId);
       const updatedCount = count ? count - 1 : 0;
-
       setAnimal(updatedAnimal);
       setCount(updatedCount);
-
       await AsyncStorage.setItem("stallion", JSON.stringify(updatedAnimal));
       await AsyncStorage.setItem("stallionCount", JSON.stringify(updatedCount));
-
       setModalVisible(false);
     } catch (error) {
     } finally {
@@ -174,7 +144,6 @@ export default function HorseHerd({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Сүргийн тоо: {count ? count : 0}</Text>
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -195,7 +164,6 @@ export default function HorseHerd({ navigation }) {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -235,14 +203,11 @@ export default function HorseHerd({ navigation }) {
               </TouchableOpacity>
             )}
           />
-
           <SubmitButton onPress={handleAddHerd} text={"Сүрэг нэмэх"} />
-
           <DeleteHerdModal
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            loading={loading}
             error={error}
           />
         </View>
@@ -292,14 +257,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -311,7 +276,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

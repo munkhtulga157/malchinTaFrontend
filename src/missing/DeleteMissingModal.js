@@ -18,7 +18,6 @@ export default function DeleteMissingModal({
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.text}>Зарыг устгахдаа итгэлтэй байна уу</Text>
-
           <YesNoButton
             onPressYes={handleDelete}
             yesText={"Тийм"}

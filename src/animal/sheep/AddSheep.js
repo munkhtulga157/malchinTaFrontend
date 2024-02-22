@@ -35,17 +35,10 @@ export default function AddSheep({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
       }
     };
 
@@ -55,7 +48,6 @@ export default function AddSheep({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -66,54 +58,38 @@ export default function AddSheep({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
-      const isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        setError("Интернэт холболтоо шалгана уу");
-        return;
-      }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-
       const uriParts = photo?.split(".") ?? [];
       const fileType =
         uriParts.length > 1 ? uriParts[uriParts.length - 1] : null;
-
       const formData = new FormData();
       formData.append("userId", id);
       formData.append("type", type);
-
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
-
       formData.append("photo", {
         uri: photo,
         type: `image/${fileType}`,
         name: `photo.${fileType}`,
       });
-
       if (!sex || !age || !appearance || !seal) {
         setError("Бүх хэсгийг бөглөнө үү");
         return;
       }
-
       formData.append("sex", sex);
       formData.append("age", age);
       formData.append("appearance", appearance);
       formData.append("seal", seal);
-
       if (explanation) {
         formData.append("explanation", explanation);
       }
-
       await axios.post(`${URL}/animal`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       navigation.navigate("Sheep");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -124,9 +100,7 @@ export default function AddSheep({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -140,7 +114,6 @@ export default function AddSheep({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -161,13 +134,11 @@ export default function AddSheep({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <ImageButton
             text={"Зураг оруулах"}
             onPress={toggleModal}
             photo={photo}
           />
-
           <View style={styles.nasHuis}>
             <View style={styles.nasContainer}>
               <Text style={styles.nas}>Нас</Text>
@@ -178,10 +149,8 @@ export default function AddSheep({ navigation }) {
                 keyboardType="numeric"
               />
             </View>
-
             <View>
               <Text style={styles.huis}>Хүйс</Text>
-
               <View style={styles.radioContainer}>
                 <TouchableOpacity
                   style={[styles.radio, sex === "Эр" && styles.selectedRadio]}
@@ -197,7 +166,6 @@ export default function AddSheep({ navigation }) {
                     Эр
                   </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   style={[styles.radio, sex === "Эм" && styles.selectedRadio]}
                   onPress={() => setSexType("Эм")}
@@ -215,19 +183,14 @@ export default function AddSheep({ navigation }) {
               </View>
             </View>
           </View>
-
           <Input text={"Зүс"} value={appearance} onChangeText={setAppearance} />
-
           <Input text={"Им тэмдэг"} value={seal} onChangeText={setSeal} />
-
           <Input
             text={"Нэмэлт тайлбар"}
             value={explanation}
             onChangeText={setExplanation}
           />
-
           <SubmitButton onPress={handleAdd} text={"Нэмэх"} />
-
           <Modal
             animationType="fade"
             transparent={true}

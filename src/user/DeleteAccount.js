@@ -17,7 +17,6 @@ export default function DeleteAccount({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -27,28 +26,22 @@ export default function DeleteAccount({ navigation }) {
   const handleYes = async () => {
     try {
       setLoading(true);
-
+      setError(null);
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
       await axios.delete(`${URL}/user/${id}`);
-
       await AsyncStorage.removeItem("token");
       await AsyncStorage.removeItem("data");
-
       await AsyncStorage.removeItem("news");
       await AsyncStorage.removeItem("userNews");
-
       await AsyncStorage.removeItem("missing");
       await AsyncStorage.removeItem("userMissing");
-
       await AsyncStorage.removeItem("allCount");
       await AsyncStorage.removeItem("stallions");
-
       await AsyncStorage.removeItem("camelCount");
       await AsyncStorage.removeItem("femaleCamel");
       await AsyncStorage.removeItem("femaleCamelCount");
@@ -57,9 +50,7 @@ export default function DeleteAccount({ navigation }) {
       await AsyncStorage.removeItem("removedCamel");
       await AsyncStorage.removeItem("removedCamelCount");
       await AsyncStorage.removeItem("camelVaccine");
-
       await AsyncStorage.removeItem("countData");
-
       await AsyncStorage.removeItem("cowCount");
       await AsyncStorage.removeItem("femaleCow");
       await AsyncStorage.removeItem("femaleCowCount");
@@ -68,7 +59,6 @@ export default function DeleteAccount({ navigation }) {
       await AsyncStorage.removeItem("removedCow");
       await AsyncStorage.removeItem("removedCowCount");
       await AsyncStorage.removeItem("cowVaccine");
-
       await AsyncStorage.removeItem("goatCount");
       await AsyncStorage.removeItem("femaleGoat");
       await AsyncStorage.removeItem("femaleGoatCount");
@@ -77,7 +67,6 @@ export default function DeleteAccount({ navigation }) {
       await AsyncStorage.removeItem("removedGoat");
       await AsyncStorage.removeItem("removedGoatCount");
       await AsyncStorage.removeItem("goatVaccine");
-
       await AsyncStorage.removeItem("horseCount");
       await AsyncStorage.removeItem("femaleHorse");
       await AsyncStorage.removeItem("femaleHorseCount");
@@ -91,7 +80,6 @@ export default function DeleteAccount({ navigation }) {
       await AsyncStorage.removeItem("herd");
       await AsyncStorage.removeItem("herdCount");
       await AsyncStorage.removeItem("chosenStallion");
-
       await AsyncStorage.removeItem("sheepCount");
       await AsyncStorage.removeItem("femaleSheep");
       await AsyncStorage.removeItem("femaleSheepCount");
@@ -100,7 +88,6 @@ export default function DeleteAccount({ navigation }) {
       await AsyncStorage.removeItem("removedSheep");
       await AsyncStorage.removeItem("removedSheepCount");
       await AsyncStorage.removeItem("sheepVaccine");
-
       navigation.navigate("Welcome");
     } catch (error) {
     } finally {
@@ -120,11 +107,9 @@ export default function DeleteAccount({ navigation }) {
         <View style={styles.container}>
           <View style={styles.content}>
             {error && <ErrorText error={error} />}
-
             <Text style={styles.title}>
               Бүртгэлээ устгахдаа итгэлтэй байна уу?
             </Text>
-
             <YesNoButton
               onPressYes={handleYes}
               yesText={"Тийм"}

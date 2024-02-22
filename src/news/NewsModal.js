@@ -78,7 +78,6 @@ export default function NewsModal({
           </ScrollView>
         </View>
       </BackgroundImage>
-
       <Modal visible={isImageViewerVisible} transparent={true}>
         <ImageViewer
           imageUrls={[{ url: photo }]}

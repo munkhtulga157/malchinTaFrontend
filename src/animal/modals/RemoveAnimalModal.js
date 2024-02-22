@@ -24,9 +24,7 @@ export default function RemoveAnimalModal({
         <View style={styles.container}>
           <View style={styles.content}>
             {error && <ErrorText error={error} />}
-
             <Text style={styles.text}>Хасалт хийх шалтгаан</Text>
-
             <TextInput
               style={styles.input}
               value={value}

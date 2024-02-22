@@ -87,7 +87,6 @@ export default function AnimalModal({
           </ScrollView>
         </View>
       </BackgroundImage>
-
       <Modal visible={isImageViewerVisible} transparent={true}>
         <ImageViewer
           imageUrls={[{ url: photo }]}

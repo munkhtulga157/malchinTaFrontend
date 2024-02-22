@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleSheet, View, Image, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import MainButton from "../configs/MainButton";
 import BackgroundImage from "../configs/BackgroundImage";
-import Loading from "../configs/Loading";
 
 const { width } = Dimensions.get("window");
 
 export default function Welcome({ navigation }) {
-  const [loading, setLoading] = useState(false);
   const imageSize = width * 0.7;
 
   useEffect(() => {
-    setLoading(true);
-    checkToken().finally(() => setLoading(false));
+    checkToken();
   }, []);
 
   const checkToken = async () => {
@@ -34,18 +31,14 @@ export default function Welcome({ navigation }) {
 
   return (
     <BackgroundImage>
-      {loading ? (
-        <Loading />
-      ) : (
-        <View style={styles.container}>
-          <Image
-            style={[styles.logo, { width: imageSize, height: imageSize }]}
-            source={require("../../assets/malchinTaLogoWhite.png")}
-          />
-          <MainButton onPress={handleLogin} text={"Нэвтрэх"} />
-          <MainButton onPress={handleRegister} text={"Бүртгүүлэх"} />
-        </View>
-      )}
+      <View style={styles.container}>
+        <Image
+          style={[styles.logo, { width: imageSize, height: imageSize }]}
+          source={require("../../assets/malchinTaLogoWhite.png")}
+        />
+        <MainButton onPress={handleLogin} text={"Нэвтрэх"} />
+        <MainButton onPress={handleRegister} text={"Бүртгүүлэх"} />
+      </View>
     </BackgroundImage>
   );
 }

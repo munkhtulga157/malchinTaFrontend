@@ -48,35 +48,21 @@ export default function FemaleCamel() {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const json = await AsyncStorage.getItem("femaleCamel");
-
-          if (json) {
-            const data = JSON.parse(json);
-
-            setAnimal(data);
-          }
-
-          const jsonCount = await AsyncStorage.getItem("femaleCamelCount");
-
-          if (jsonCount) {
-            const data = JSON.parse(jsonCount);
-
-            setCount(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const json = await AsyncStorage.getItem("femaleCamel");
+        if (json) {
+          const data = JSON.parse(json);
+          setAnimal(data);
+        }
+        const jsonCount = await AsyncStorage.getItem("femaleCamelCount");
+        if (jsonCount) {
+          const data = JSON.parse(jsonCount);
+          setCount(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -84,7 +70,6 @@ export default function FemaleCamel() {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -92,57 +77,37 @@ export default function FemaleCamel() {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(
-        `${URL}/animal/female/${id}?type=${type}`
-      );
-
-      setAnimal(response.data.data);
-      setCount(response.data.count);
-
-      const json = await response.data.data;
-      const jsonCount = await response.data.count;
-
-      await AsyncStorage.setItem("femaleCamel", JSON.stringify(json));
-      await AsyncStorage.setItem("femaleCamelCount", JSON.stringify(jsonCount));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/animal/female/${id}?type=${type}`);
+    setAnimal(response.data.data);
+    setCount(response.data.count);
+    const json = await response.data.data;
+    const jsonCount = await response.data.count;
+    await AsyncStorage.setItem("femaleCamel", JSON.stringify(json));
+    await AsyncStorage.setItem("femaleCamelCount", JSON.stringify(jsonCount));
   };
 
   const handleRemove = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       await axios.put(`${URL}/animal/removal/${itemId}`, {
         removal,
       });
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(
-        `${URL}/animal/female/${id}?type=${type}`
+      const updatedAnimal = animal.filter((item) => item._id !== itemId);
+      const updatedCount = count ? count - 1 : 0;
+      setAnimal(updatedAnimal);
+      setCount(updatedCount);
+      await AsyncStorage.setItem("femaleCamel", JSON.stringify(updatedAnimal));
+      await AsyncStorage.setItem(
+        "femaleCamelCount",
+        JSON.stringify(updatedCount)
       );
-
-      setAnimal(response.data.data);
-      setCount(response.data.count);
-
-      const json = await response.data.data;
-      const jsonCount = await response.data.count;
-
-      await AsyncStorage.setItem("femaleCamel", JSON.stringify(json));
-      await AsyncStorage.setItem("femaleCamelCount", JSON.stringify(jsonCount));
-
       setModalVisible(false);
     } catch (error) {
       setError(error.response?.data?.error);
@@ -164,14 +129,12 @@ export default function FemaleCamel() {
     const lowerCaseAge = age.toLowerCase();
     const lowerCaseAppearance = appearance.toLowerCase();
     const lowerCaseSeal = seal.toLowerCase();
-
     return animal.filter((item) => {
       const ageMatch = item.age.toLowerCase().includes(lowerCaseAge);
       const appearanceMatch = item.appearance
         .toLowerCase()
         .includes(lowerCaseAppearance);
       const sealMatch = item.seal.toLowerCase().includes(lowerCaseSeal);
-
       return ageMatch && appearanceMatch && sealMatch;
     });
   };
@@ -196,7 +159,6 @@ export default function FemaleCamel() {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -217,7 +179,6 @@ export default function FemaleCamel() {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -265,7 +226,6 @@ export default function FemaleCamel() {
               </TouchableOpacity>
             )}
           />
-
           <AnimalModal
             isVisible={animalModalVisible}
             closeModal={handleAnimalModalClose}
@@ -276,13 +236,11 @@ export default function FemaleCamel() {
             seal={sealModal}
             explanation={explanationModal}
           />
-
           <RemoveAnimalModal
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleRemove={handleRemove}
             error={error}
-            loading={loading}
             value={removal}
             setValue={setRemoval}
           />
@@ -333,14 +291,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -352,7 +310,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

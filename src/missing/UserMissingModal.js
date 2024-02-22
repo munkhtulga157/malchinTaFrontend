@@ -73,7 +73,6 @@ export default function UserMissingModal({
           </ScrollView>
         </View>
       </BackgroundImage>
-
       <Modal visible={isImageViewerVisible} transparent={true}>
         <ImageViewer
           imageUrls={[{ url: photo }]}

@@ -46,33 +46,22 @@ export default function EditHerd({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
         const isConnected = await checkInternetConnection();
         if (!isConnected) {
           setError("Интернэт холболтоо шалгана уу");
           return;
         }
-
-        setLoading(true);
-
         const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
         const response = await axios.get(`${URL}/animal/nonStallion/${id}`);
-
         setAnimal(response.data.data);
         setCount(response.data.count);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -94,14 +83,12 @@ export default function EditHerd({ navigation }) {
     const lowerCaseAge = age.toLowerCase();
     const lowerCaseAppearance = appearance.toLowerCase();
     const lowerCaseSeal = seal.toLowerCase();
-
     return animal.filter((item) => {
       const ageMatch = item.age.toLowerCase().includes(lowerCaseAge);
       const appearanceMatch = item.appearance
         .toLowerCase()
         .includes(lowerCaseAppearance);
       const sealMatch = item.seal.toLowerCase().includes(lowerCaseSeal);
-
       return ageMatch && appearanceMatch && sealMatch;
     });
   };
@@ -124,19 +111,14 @@ export default function EditHerd({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const stallionId = JSON.parse(
         await AsyncStorage.getItem("selectedStallion")
       );
-
       const otherIds = selectedItems.join(",");
-
       await axios.put(`${URL}/herd/add/${otherIds}?stallionId=${stallionId}`);
-
       await axios.put(`${URL}/animal/stallionId/${otherIds}`, {
         stallionId,
       });
-
       navigation.navigate("HerdList");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -152,9 +134,7 @@ export default function EditHerd({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
-
           {error && <ErrorText error={error} />}
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -175,7 +155,6 @@ export default function EditHerd({ navigation }) {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -288,14 +267,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -307,7 +286,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

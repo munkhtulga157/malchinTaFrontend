@@ -21,29 +21,18 @@ export default function AddCountFront({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
         const isConnected = await checkInternetConnection();
         if (!isConnected) {
           setError("Интернэт холболтоо шалгана уу");
           return;
         }
-
-        await AsyncStorage.getItem("");
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -54,23 +43,13 @@ export default function AddCountFront({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
-      const isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        setError("Интернэт холболтоо шалгана уу");
-        return;
-      }
-
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-
       const uriParts = photo.split(".");
       const fileType = uriParts[uriParts.length - 1];
-
       const formData = new FormData();
       formData.append("userId", id);
       formData.append("photoFront", {
@@ -78,16 +57,13 @@ export default function AddCountFront({ navigation }) {
         type: `image/${fileType}`,
         name: `photo.${fileType}`,
       });
-
       const response = await axios.post(`${URL}/count`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       const countId = response.data.data._id;
       await AsyncStorage.setItem("countId", countId);
-
       navigation.navigate("AddCountBack");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -98,9 +74,7 @@ export default function AddCountFront({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -114,7 +88,6 @@ export default function AddCountFront({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -131,11 +104,8 @@ export default function AddCountFront({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <ImageButton text={"Нүүр нэг"} onPress={toggleModal} photo={photo} />
-
           <SubmitButton onPress={handleSubmit} text={"Хадгалах"} />
-
           <Modal
             animationType="fade"
             transparent={true}

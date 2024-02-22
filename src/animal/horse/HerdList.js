@@ -48,31 +48,21 @@ export default function HerdList({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
           const json = await AsyncStorage.getItem("herdList");
           if (json) {
             const data = JSON.parse(json);
             setAnimal(data);
           }
-
           const jsonCount = await AsyncStorage.getItem("herdCount");
           if (jsonCount) {
             const data = JSON.parse(jsonCount);
             setCount(data);
           }
-
           const isConnected = await checkInternetConnection();
           if (isConnected) {
             await updateDataFromMongoDB();
           }
-        } catch {
-        } finally {
-          setLoading(false);
-        }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -80,7 +70,6 @@ export default function HerdList({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -88,9 +77,6 @@ export default function HerdList({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
       const stallionId = JSON.parse(
         await AsyncStorage.getItem("selectedStallion")
@@ -98,49 +84,36 @@ export default function HerdList({ navigation }) {
       const response = await axios.get(
         `${URL}/herd/${id}?stallionId=${stallionId}`
       );
-
       const otherIds = response.data.data.map((item) => item.otherIds);
       const response2 = await axios.get(`${URL}/animal/byIds/${otherIds}`);
-
       setAnimal(response2.data.data);
       setCount(response2.data.count);
-
       await AsyncStorage.setItem("herd", JSON.stringify(response2.data.data));
       await AsyncStorage.setItem(
         "herdCount",
         JSON.stringify(response2.data.count)
       );
-    } catch {
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleDelete = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       const stallionId = JSON.parse(
         await AsyncStorage.getItem("selectedStallion")
       );
       await axios.put(`${URL}/herd/${itemId}?stallionId=${stallionId}`);
-
       const updatedAnimal = animal.filter((item) => item._id !== itemId);
       const updatedCount = count ? count - 1 : 0;
-
       setAnimal(updatedAnimal);
       setCount(updatedCount);
-
       await AsyncStorage.setItem("herd", JSON.stringify(updatedAnimal));
       await AsyncStorage.setItem("herdCount", JSON.stringify(updatedCount));
-
       setModalVisible(false);
     } catch (error) {
     } finally {
@@ -161,14 +134,12 @@ export default function HerdList({ navigation }) {
     const lowerCaseAge = age.toLowerCase();
     const lowerCaseAppearance = appearance.toLowerCase();
     const lowerCaseSeal = seal.toLowerCase();
-
     return animal.filter((item) => {
       const ageMatch = item.age.toLowerCase().includes(lowerCaseAge);
       const appearanceMatch = item.appearance
         .toLowerCase()
         .includes(lowerCaseAppearance);
       const sealMatch = item.seal.toLowerCase().includes(lowerCaseSeal);
-
       return ageMatch && appearanceMatch && sealMatch;
     });
   };
@@ -198,7 +169,6 @@ export default function HerdList({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -219,7 +189,6 @@ export default function HerdList({ navigation }) {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -269,9 +238,7 @@ export default function HerdList({ navigation }) {
               </TouchableOpacity>
             )}
           />
-
           <SubmitButton onPress={handleEditHerd} text={"Адуу нэмэх"} />
-
           <AnimalModal
             isVisible={animalModalVisible}
             closeModal={handleAnimalModalClose}
@@ -282,12 +249,10 @@ export default function HerdList({ navigation }) {
             seal={sealModal}
             explanation={explanationModal}
           />
-
           <RemoveHerdModal
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            loading={loading}
             error={error}
           />
         </View>
@@ -337,14 +302,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -356,7 +321,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

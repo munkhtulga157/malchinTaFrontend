@@ -22,27 +22,18 @@ export default function UpdateCountFront({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
       }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -53,28 +44,16 @@ export default function UpdateCountFront({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
-      const isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        setError("Интернэт холболтоо шалгана уу");
-        return;
-      }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-
       const response = await axios.get(`${URL}/count/${id}`);
       setItemId(response.data.data?._id || null);
-
       await axios.delete(`${URL}/count/${itemId}`);
-
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
-
       const uriParts = photo.split(".");
       const fileType = uriParts[uriParts.length - 1];
-
       const formData = new FormData();
       formData.append("userId", id);
       formData.append("photoFront", {
@@ -82,16 +61,13 @@ export default function UpdateCountFront({ navigation }) {
         type: `image/${fileType}`,
         name: `photo.${fileType}`,
       });
-
       const newResponse = await axios.post(`${URL}/count`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       const countId = newResponse.data.data._id;
       await AsyncStorage.setItem("countId", countId);
-
       navigation.navigate("UpdateCountBack");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -102,9 +78,7 @@ export default function UpdateCountFront({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -118,7 +92,6 @@ export default function UpdateCountFront({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -135,15 +108,8 @@ export default function UpdateCountFront({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
-          <ImageButton
-            text={"Нүүр нэг"}
-            onPress={toggleModal}
-            photo={photo}
-          />
-
+          <ImageButton text={"Нүүр нэг"} onPress={toggleModal} photo={photo} />
           <SubmitButton onPress={handleSubmit} text={"Хадгалах"} />
-
           <Modal
             animationType="fade"
             transparent={true}

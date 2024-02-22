@@ -46,33 +46,22 @@ export default function AddHerd({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-
-        setLoading(true);
-
-        const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-        const response = await axios.get(`${URL}/animal/nonStallion/${id}`);
-
-        setAnimal(response.data.data);
-        setCount(response.data.count);
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
       }
+      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+      const response = await axios.get(`${URL}/animal/nonStallion/${id}`);
+      setAnimal(response.data.data);
+      setCount(response.data.count);
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -94,14 +83,12 @@ export default function AddHerd({ navigation }) {
     const lowerCaseAge = age.toLowerCase();
     const lowerCaseAppearance = appearance.toLowerCase();
     const lowerCaseSeal = seal.toLowerCase();
-
     return animal.filter((item) => {
       const ageMatch = item.age.toLowerCase().includes(lowerCaseAge);
       const appearanceMatch = item.appearance
         .toLowerCase()
         .includes(lowerCaseAppearance);
       const sealMatch = item.seal.toLowerCase().includes(lowerCaseSeal);
-
       return ageMatch && appearanceMatch && sealMatch;
     });
   };
@@ -124,28 +111,23 @@ export default function AddHerd({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
       const stallionId = JSON.parse(
         await AsyncStorage.getItem("chosenStallion")
       );
       const otherIds = selectedItems.join(",");
-
       const formData = new FormData();
       formData.append("userId", id);
       formData.append("stallionId", stallionId);
       formData.append("otherIds", otherIds);
-
       await axios.post(`${URL}/herd`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       await axios.put(`${URL}/animal/stallionId/${otherIds}`, {
         stallionId,
       });
-
       await AsyncStorage.removeItem("chosenStallion");
       navigation.navigate("HorseHerd");
     } catch (error) {
@@ -162,9 +144,7 @@ export default function AddHerd({ navigation }) {
       ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
-
           {error && <ErrorText error={error} />}
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -185,7 +165,6 @@ export default function AddHerd({ navigation }) {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -220,7 +199,6 @@ export default function AddHerd({ navigation }) {
                   <Text style={styles.text}>{`Зүс: ${item.appearance}`}</Text>
                   <Text style={styles.text}>{`Им тамга: ${item.seal}`}</Text>
                 </View>
-
                 <View style={styles.iconContainer}>
                   <TouchableOpacity
                     onPress={() => toggleSelectItem(item._id)}
@@ -299,14 +277,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -318,7 +296,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

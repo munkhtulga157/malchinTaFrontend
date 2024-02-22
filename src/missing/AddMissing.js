@@ -27,36 +27,24 @@ export default function AddMissing({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-
-        const json = await AsyncStorage.getItem("data");
-
-        if (json) {
-          const data = JSON.parse(json);
-
-          setSurname(data?.surname || null);
-          setGivenName(data?.givenName || null);
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
+      }
+      const json = await AsyncStorage.getItem("data");
+      if (json) {
+        const data = JSON.parse(json);
+        setSurname(data?.surname || null);
+        setGivenName(data?.givenName || null);
       }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -67,19 +55,15 @@ export default function AddMissing({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-
       const uriParts = photo?.split(".") ?? [];
       const fileType =
         uriParts.length > 1 ? uriParts[uriParts.length - 1] : null;
-
       const formData = new FormData();
       formData.append("userId", id);
       if (surname !== null) {
@@ -97,13 +81,11 @@ export default function AddMissing({ navigation }) {
           name: `photo.${fileType}`,
         });
       }
-
       await axios.post(`${URL}/missing`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       navigation.goBack();
     } catch (error) {
       setError(error.response?.data?.error);
@@ -114,9 +96,7 @@ export default function AddMissing({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -130,7 +110,6 @@ export default function AddMissing({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -147,23 +126,18 @@ export default function AddMissing({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <ImageButton
             text={"Зураг оруулах"}
             onPress={toggleModal}
             photo={photo}
           />
-
           <Input text={"Гарчиг"} value={title} onChangeText={setTitle} />
-
           <BigInput
             text={"Мэдээлэл"}
             value={description}
             onChangeText={setDescription}
           />
-
           <SubmitButton onPress={handleAdd} text={"Нэмэх"} />
-
           <Modal
             animationType="fade"
             transparent={true}

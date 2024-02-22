@@ -22,11 +22,9 @@ export default function DeleteAnimalModal({
         <View style={styles.container}>
           <View style={styles.content}>
             {error && <ErrorText error={error} />}
-
             <Text style={styles.text}>
               Малыг бүртгэлээс устгахдаа итгэлтэй байна уу
             </Text>
-
             <YesNoButton
               onPressYes={handleDelete}
               yesText={"Тийм"}

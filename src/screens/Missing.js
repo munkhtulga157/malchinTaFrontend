@@ -25,7 +25,6 @@ import {
 import MissingModal from "../missing/MissingModal";
 import BackgroundImage from "../configs/BackgroundImage";
 import SubmitButton from "../configs/SubmitButton";
-import Loading from "../configs/Loading";
 
 export default function Missing({ navigation }) {
   const [missing, setMissing] = useState([]);
@@ -36,32 +35,20 @@ export default function Missing({ navigation }) {
   const [surname, setSurname] = useState("");
   const [givenName, setGivenName] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const missing = await AsyncStorage.getItem("missing");
-
-          if (missing) {
-            const data = JSON.parse(missing);
-
-            setMissing(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const missing = await AsyncStorage.getItem("missing");
+        if (missing) {
+          const data = JSON.parse(missing);
+          setMissing(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -69,7 +56,6 @@ export default function Missing({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -77,20 +63,10 @@ export default function Missing({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const response = await axios.get(`${URL}/missing`);
-
-      setMissing(response.data.data);
-
-      const json = await response.data.data;
-
-      await AsyncStorage.setItem("missing", JSON.stringify(json));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const response = await axios.get(`${URL}/missing`);
+    setMissing(response.data.data);
+    const json = await response.data.data;
+    await AsyncStorage.setItem("missing", JSON.stringify(json));
   };
 
   const truncateText = (text, fontSize, maxWidth) => {
@@ -136,83 +112,73 @@ export default function Missing({ navigation }) {
 
   return (
     <BackgroundImage>
-      {loading ? (
-        <Loading />
-      ) : (
-        <View style={styles.container}>
-          <FlatList
-            style={styles.listContainer}
-            data={missing}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  handleMissing(
-                    item.photo,
+      <View style={styles.container}>
+        <FlatList
+          style={styles.listContainer}
+          data={missing}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                handleMissing(
+                  item.photo,
+                  item.title,
+                  item.description,
+                  item.date,
+                  item.surname,
+                  item.givenName
+                )
+              }
+              style={styles.listItem}
+            >
+              <View style={styles.imageContainer}>
+                {item.photo ? (
+                  <Image source={{ uri: item.photo }} style={styles.image} />
+                ) : (
+                  <Ionicons
+                    name="image-outline"
+                    size={80}
+                    color={PRIMARY_COLOR}
+                  />
+                )}
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>
+                  {truncateText(
                     item.title,
-                    item.description,
-                    item.date,
-                    item.surname,
-                    item.givenName
-                  )
-                }
-                style={styles.listItem}
-              >
-                <View style={styles.imageContainer}>
-                  {item.photo ? (
-                    <Image source={{ uri: item.photo }} style={styles.image} />
-                  ) : (
-                    <Ionicons
-                      name="image-outline"
-                      size={80}
-                      color={PRIMARY_COLOR}
-                    />
+                    TEXT_FONT,
+                    Dimensions.get("window").width - 120
                   )}
-                </View>
-
-                <View style={styles.textContainer}>
-                  <Text style={styles.title}>
-                    {truncateText(
-                      item.title,
-                      TEXT_FONT,
-                      Dimensions.get("window").width - 120
-                    )}
+                </Text>
+                <Text style={styles.description}>
+                  {truncateText(
+                    item.description,
+                    SMALL_TEXT_FONT,
+                    Dimensions.get("window").width - 120
+                  )}
+                </Text>
+                <View style={styles.bottomContainer}>
+                  <Text style={styles.date}>{formatDate(item.date)}</Text>
+                  <Text style={styles.author}>
+                    {item.surname || "Малчин"} {item.givenName || ""}
                   </Text>
-
-                  <Text style={styles.description}>
-                    {truncateText(
-                      item.description,
-                      SMALL_TEXT_FONT,
-                      Dimensions.get("window").width - 120
-                    )}
-                  </Text>
-
-                  <View style={styles.bottomContainer}>
-                    <Text style={styles.date}>{formatDate(item.date)}</Text>
-
-                    <Text style={styles.author}>
-                      {item.surname || "Малчин"} {item.givenName || ""}
-                    </Text>
-                  </View>
                 </View>
-              </TouchableOpacity>
-            )}
-          />
-
-          <MissingModal
-            isVisible={modalVisible}
-            closeModal={handleModalClose}
-            photo={photo}
-            title={title}
-            description={description}
-            date={date}
-            surname={surname}
-            givenName={givenName}
-          />
-
-          <SubmitButton onPress={handleUserMissing} text={"Миний зарууд"} />
-        </View>
-      )}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+        <MissingModal
+          isVisible={modalVisible}
+          closeModal={handleModalClose}
+          photo={photo}
+          title={title}
+          description={description}
+          date={date}
+          surname={surname}
+          givenName={givenName}
+        />
+        <SubmitButton onPress={handleUserMissing} text={"Миний зарууд"} />
+      </View>
     </BackgroundImage>
   );
 }

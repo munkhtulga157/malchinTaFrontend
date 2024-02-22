@@ -22,11 +22,9 @@ export default function RemoveHerdModal({
         <View style={styles.container}>
           <View style={styles.content}>
             {error && <ErrorText error={error} />}
-
             <Text style={styles.text}>
               Малыг сүргээс хасахдаа итгэлтэй байна уу
             </Text>
-
             <YesNoButton
               onPressYes={handleDelete}
               yesText={"Тийм"}

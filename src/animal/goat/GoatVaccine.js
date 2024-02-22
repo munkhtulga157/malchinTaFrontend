@@ -41,27 +41,16 @@ export default function GoatVaccine({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const json = await AsyncStorage.getItem("goatVaccine");
-
-          if (json) {
-            const data = JSON.parse(json);
-
-            setVaccine(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const json = await AsyncStorage.getItem("goatVaccine");
+        if (json) {
+          const data = JSON.parse(json);
+          setVaccine(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -69,7 +58,6 @@ export default function GoatVaccine({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -77,48 +65,27 @@ export default function GoatVaccine({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/vaccine/${id}?type=${type}`);
-
-      setVaccine(response.data.data);
-
-      const json = await response.data.data;
-
-      await AsyncStorage.setItem("goatVaccine", JSON.stringify(json));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/vaccine/${id}?type=${type}`);
+    setVaccine(response.data.data);
+    const json = await response.data.data;
+    await AsyncStorage.setItem("goatVaccine", JSON.stringify(json));
   };
 
   const handleDelete = async () => {
     try {
-      if (itemId) {
-        setLoading(true);
-        setError(null);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-
-        await axios.delete(`${URL}/vaccine/${itemId}`);
-
-        const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-        const response = await axios.get(`${URL}/vaccine/${id}?type=${type}`);
-
-        setVaccine(response.data.data);
-
-        const json = await response.data.data;
-
-        await AsyncStorage.setItem("goatVaccine", JSON.stringify(json));
-
-        setModalVisible(false);
+      setLoading(true);
+      setError(null);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
       }
+      await axios.delete(`${URL}/vaccine/${itemId}`);
+      const updatedVaccine = vaccine.filter((item) => item._id !== itemId);
+      setVaccine(updatedVaccine);
+      await AsyncStorage.setItem("goatVaccine", JSON.stringify(updatedVaccine));
+      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
@@ -194,21 +161,18 @@ export default function GoatVaccine({ navigation }) {
               </TouchableOpacity>
             )}
           />
-
           <AnimalModal
             isVisible={animalModalVisible}
             closeModal={handleAnimalModalClose}
             photo={photoModal}
             description={descriptionModal}
           />
-
           <DeleteAnimalVaccineModal
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
             error={error}
           />
-
           <SubmitButton onPress={handleAddVaccine} text={"Вакцин нэмэх"} />
         </View>
       )}
@@ -236,14 +200,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     marginRight: 10,
     height: "auto",
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -255,7 +219,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

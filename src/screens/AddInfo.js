@@ -24,9 +24,7 @@ export default function AddInfo({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const id = await AsyncStorage.getItem("id");
-
       if (id) {
         await axios.put(`${URL}/user/info/${id}`, {
           surname,
@@ -36,9 +34,7 @@ export default function AddInfo({ navigation }) {
           subdistrict,
           phoneNumber,
         });
-
         await AsyncStorage.removeItem("id");
-
         navigation.navigate("Login");
       }
     } catch (error) {
@@ -55,7 +51,6 @@ export default function AddInfo({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <Input text={"Овог"} value={surname} onChangeText={setSurname} />
           <Input text={"Нэр"} value={givenName} onChangeText={setGivenName} />
           <Input text={"Аймаг"} value={province} onChangeText={setProvince} />
@@ -71,7 +66,6 @@ export default function AddInfo({ navigation }) {
             onChangeText={setPhoneNumber}
             keyboardType={"numeric"}
           />
-
           <SubmitButton text={"Бүртгүүлэх"} onPress={handleRegister} />
         </View>
       )}

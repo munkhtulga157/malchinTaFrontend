@@ -22,11 +22,9 @@ export default function DeleteAnimalVaccineModal({
         <View style={styles.container}>
           <View style={styles.content}>
             {error && <ErrorText error={error} />}
-
             <Text style={styles.text}>
               Та вакцигийг устгахдаа итгэлтэй байна уу?
             </Text>
-
             <YesNoButton
               onPressYes={handleDelete}
               yesText={"Тийм"}

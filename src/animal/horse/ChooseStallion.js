@@ -21,13 +21,11 @@ import {
   WHITE_COLOR,
 } from "../../configs/Config";
 import BackgroundImage from "../../configs/BackgroundImage";
-import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
 
 export default function ChooseStallion({ navigation }) {
   const [animal, setAnimal] = useState([]);
   const [count, setCount] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [age, setAge] = useState("");
   const [appearance, setAppearance] = useState("");
   const [seal, setSeal] = useState("");
@@ -41,33 +39,22 @@ export default function ChooseStallion({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
         const isConnected = await checkInternetConnection();
         if (!isConnected) {
           setError("Интернэт холболтоо шалгана уу");
           return;
         }
-
-        setLoading(true);
-
         const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
         const response = await axios.get(`${URL}/animal/stallion/${id}`);
-
         setAnimal(response.data.data);
         setCount(response.data.count);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -76,7 +63,6 @@ export default function ChooseStallion({ navigation }) {
 
   const handleChooseIcon = async (itemId) => {
     await AsyncStorage.setItem("chosenStallion", JSON.stringify(itemId));
-
     navigation.navigate("AddHerd");
   };
 
@@ -84,14 +70,12 @@ export default function ChooseStallion({ navigation }) {
     const lowerCaseAge = age.toLowerCase();
     const lowerCaseAppearance = appearance.toLowerCase();
     const lowerCaseSeal = seal.toLowerCase();
-
     return animal.filter((item) => {
       const ageMatch = item.age.toLowerCase().includes(lowerCaseAge);
       const appearanceMatch = item.appearance
         .toLowerCase()
         .includes(lowerCaseAppearance);
       const sealMatch = item.seal.toLowerCase().includes(lowerCaseSeal);
-
       return ageMatch && appearanceMatch && sealMatch;
     });
   };
@@ -111,12 +95,8 @@ export default function ChooseStallion({ navigation }) {
 
   return (
     <BackgroundImage>
-      {loading ? (
-        <Loading />
-      ) : (
         <View style={styles.container}>
           <Text style={styles.title}>Нийт азарга: {count ? count : 0}</Text>
-
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}
@@ -137,7 +117,6 @@ export default function ChooseStallion({ navigation }) {
               value={seal}
             />
           </View>
-
           <FlatList
             style={styles.listContainer}
             data={filterAnimal()}
@@ -170,7 +149,6 @@ export default function ChooseStallion({ navigation }) {
                   <Text style={styles.text}>{`Зүс: ${item.appearance}`}</Text>
                   <Text style={styles.text}>{`Им тамга: ${item.seal}`}</Text>
                 </View>
-
                 <View style={styles.iconContainer}>
                   <TouchableOpacity onPress={() => handleChooseIcon(item._id)}>
                     <MaterialIcons
@@ -183,7 +161,6 @@ export default function ChooseStallion({ navigation }) {
               </TouchableOpacity>
             )}
           />
-
           <AnimalModal
             isVisible={animalModalVisible}
             closeModal={handleAnimalModalClose}
@@ -195,7 +172,6 @@ export default function ChooseStallion({ navigation }) {
             explanation={explanationModal}
           />
         </View>
-      )}
     </BackgroundImage>
   );
 }
@@ -241,14 +217,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   imageContainer: {
-    width: "21%",
+    width: "20%",
     alignItems: "center",
     height: "auto",
     marginRight: 10,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: 60,
+    height: 60,
     resizeMode: "contain",
   },
   textContainer: {
@@ -260,7 +236,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   iconContainer: {
-    width: "14%",
+    width: "15%",
     justifyContent: "center",
     alignItems: "center",
   },

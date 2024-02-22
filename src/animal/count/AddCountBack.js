@@ -21,27 +21,18 @@ export default function AddCountBack({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
       }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -52,38 +43,25 @@ export default function AddCountBack({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
-      const isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        setError("Интернэт холболтоо шалгана уу");
-        return;
-      }
-
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
-
       const countId = await AsyncStorage.getItem("countId");
-
       const uriParts = photo.split(".");
       const fileType = uriParts[uriParts.length - 1];
-
       const formData = new FormData();
       formData.append("photoBack", {
         uri: photo,
         type: `image/${fileType}`,
         name: `photo.${fileType}`,
       });
-
       await axios.put(`${URL}/count/${countId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       await AsyncStorage.removeItem("countId");
-
       navigation.navigate("Count");
     } catch (error) {
       setError(error.response?.data?.error);
@@ -94,9 +72,7 @@ export default function AddCountBack({ navigation }) {
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -110,7 +86,6 @@ export default function AddCountBack({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
@@ -127,11 +102,8 @@ export default function AddCountBack({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <ImageButton text={"Нүүр хоёр"} onPress={toggleModal} photo={photo} />
-
           <SubmitButton onPress={handleSubmit} text={"Хадгалах"} />
-
           <Modal
             animationType="fade"
             transparent={true}

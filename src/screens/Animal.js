@@ -7,36 +7,23 @@ import NetInfo from "@react-native-community/netinfo";
 
 import { BLACK_COLOR, URL, TITLE_FONT, WHITE_COLOR } from "../configs/Config";
 import BackgroundImage from "../configs/BackgroundImage";
-import Loading from "../configs/Loading";
 
 export default function Animal({ navigation }) {
   const [allCount, setAllCount] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const jsonCount = await AsyncStorage.getItem("allCount");
-
-          if (jsonCount) {
-            const data = JSON.parse(jsonCount);
-
-            setAllCount(data);
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const jsonCount = await AsyncStorage.getItem("allCount");
+        if (jsonCount) {
+          const data = JSON.parse(jsonCount);
+          setAllCount(data);
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -44,7 +31,6 @@ export default function Animal({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -52,21 +38,11 @@ export default function Animal({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/animal/all/${id}`);
-
-      setAllCount(response.data.count);
-
-      const jsonCount = await response.data.count;
-
-      await AsyncStorage.setItem("allCount", JSON.stringify(jsonCount));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/animal/all/${id}`);
+    setAllCount(response.data.count);
+    const jsonCount = await response.data.count;
+    await AsyncStorage.setItem("allCount", JSON.stringify(jsonCount));
   };
 
   const horse = () => {
@@ -97,7 +73,6 @@ export default function Animal({ navigation }) {
     return (
       <TouchableOpacity style={styles.button} onPress={onPress}>
         <Text style={styles.buttonText}>{name}</Text>
-
         <Image
           style={styles.buttonImage}
           source={image}
@@ -109,49 +84,37 @@ export default function Animal({ navigation }) {
 
   return (
     <BackgroundImage>
-      {loading ? (
-        <Loading />
-      ) : (
-        <View style={styles.container}>
-          <Text style={styles.title}>
-            Тоо толгой: {allCount ? allCount : 0}
-          </Text>
-
-          <Button
-            onPress={horse}
-            name={"Адуу"}
-            image={require("../../assets/horse.png")}
-          />
-
-          <Button
-            onPress={cow}
-            name={"Үхэр"}
-            image={require("../../assets/cow.png")}
-          />
-
-          <Button
-            onPress={sheep}
-            name={"Хонь"}
-            image={require("../../assets/sheep.png")}
-          />
-
-          <Button
-            onPress={goat}
-            name={"Ямаа"}
-            image={require("../../assets/goat.png")}
-          />
-
-          <Button
-            onPress={camel}
-            name={"Тэмээ"}
-            image={require("../../assets/camel.png")}
-          />
-
-          <TouchableOpacity style={styles.button} onPress={count}>
-            <Text style={styles.buttonText}>А данс</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <View style={styles.container}>
+        <Text style={styles.title}>Тоо толгой: {allCount ? allCount : 0}</Text>
+        <Button
+          onPress={horse}
+          name={"Адуу"}
+          image={require("../../assets/horse.png")}
+        />
+        <Button
+          onPress={cow}
+          name={"Үхэр"}
+          image={require("../../assets/cow.png")}
+        />
+        <Button
+          onPress={sheep}
+          name={"Хонь"}
+          image={require("../../assets/sheep.png")}
+        />
+        <Button
+          onPress={goat}
+          name={"Ямаа"}
+          image={require("../../assets/goat.png")}
+        />
+        <Button
+          onPress={camel}
+          name={"Тэмээ"}
+          image={require("../../assets/camel.png")}
+        />
+        <TouchableOpacity style={styles.button} onPress={count}>
+          <Text style={styles.buttonText}>А данс</Text>
+        </TouchableOpacity>
+      </View>
     </BackgroundImage>
   );
 }

@@ -19,43 +19,30 @@ import { TITLE_FONT, URL, WHITE_COLOR } from "../configs/Config";
 import MainButton from "../configs/MainButton";
 import BackgroundImage from "../configs/BackgroundImage";
 import SmallButton from "../configs/SmallButton";
-import Loading from "../configs/Loading";
 import SubmitButton from "../configs/SubmitButton";
 
 export default function User({ navigation }) {
   const [photo, setPhoto] = useState(null);
   const [surname, setSurname] = useState("");
   const [givenName, setGivenName] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showSubmitButton, setShowSubmitButton] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const json = await AsyncStorage.getItem("data");
-
-          if (json) {
-            const data = JSON.parse(json);
-
-            setPhoto(data?.photo || null);
-            setSurname(data?.surname || "");
-            setGivenName(data?.givenName || "");
-          }
-
-          const isConnected = await checkInternetConnection();
-          if (isConnected) {
-            await updateDataFromMongoDB();
-          }
-        } catch (error) {
-        } finally {
-          setLoading(false);
+        const json = await AsyncStorage.getItem("data");
+        if (json) {
+          const data = JSON.parse(json);
+          setPhoto(data?.photo || null);
+          setSurname(data?.surname || "");
+          setGivenName(data?.givenName || "");
+        }
+        const isConnected = await checkInternetConnection();
+        if (isConnected) {
+          await updateDataFromMongoDB();
         }
       };
-
       fetchData();
     }, [checkInternetConnection, updateDataFromMongoDB])
   );
@@ -63,7 +50,6 @@ export default function User({ navigation }) {
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -71,30 +57,18 @@ export default function User({ navigation }) {
   };
 
   const updateDataFromMongoDB = async () => {
-    try {
-      setLoading(true);
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/user/${id}`);
-
-      setPhoto(response.data.data?.photo || null);
-      setSurname(response.data.data?.surname || "");
-      setGivenName(response.data.data?.givenName || "");
-
-      const json = await response.data.data;
-
-      await AsyncStorage.setItem("data", JSON.stringify(json));
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    const response = await axios.get(`${URL}/user/${id}`);
+    setPhoto(response.data.data?.photo || null);
+    setSurname(response.data.data?.surname || "");
+    setGivenName(response.data.data?.givenName || "");
+    const json = await response.data.data;
+    await AsyncStorage.setItem("data", JSON.stringify(json));
   };
 
   const pickImage = async (fromCamera = false) => {
     setIsModalVisible(false);
-
     let result;
-
     if (fromCamera) {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -110,7 +84,6 @@ export default function User({ navigation }) {
         quality: 1,
       });
     }
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
       setShowSubmitButton(true);
@@ -118,26 +91,21 @@ export default function User({ navigation }) {
   };
 
   const handleAddPhoto = async () => {
-    try {
-      const uriParts = photo.split(".");
-      const fileType = uriParts[uriParts.length - 1];
-
-      const formData = new FormData();
-      formData.append("photo", {
-        uri: photo,
-        type: `image/${fileType}`,
-        name: `photo.${fileType}`,
-      });
-
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      await axios.post(`${URL}/user/photo/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setShowSubmitButton(false);
-    } catch (error) {}
+    const uriParts = photo.split(".");
+    const fileType = uriParts[uriParts.length - 1];
+    const formData = new FormData();
+    formData.append("photo", {
+      uri: photo,
+      type: `image/${fileType}`,
+      name: `photo.${fileType}`,
+    });
+    const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+    await axios.post(`${URL}/user/photo/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    setShowSubmitButton(false);
   };
 
   const toggleModal = () => {
@@ -151,16 +119,12 @@ export default function User({ navigation }) {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("data");
-
     await AsyncStorage.removeItem("news");
     await AsyncStorage.removeItem("userNews");
-
     await AsyncStorage.removeItem("missing");
     await AsyncStorage.removeItem("userMissing");
-
     await AsyncStorage.removeItem("allCount");
     await AsyncStorage.removeItem("stallions");
-
     await AsyncStorage.removeItem("camelCount");
     await AsyncStorage.removeItem("femaleCamel");
     await AsyncStorage.removeItem("femaleCamelCount");
@@ -169,9 +133,7 @@ export default function User({ navigation }) {
     await AsyncStorage.removeItem("removedCamel");
     await AsyncStorage.removeItem("removedCamelCount");
     await AsyncStorage.removeItem("camelVaccine");
-
     await AsyncStorage.removeItem("countData");
-
     await AsyncStorage.removeItem("cowCount");
     await AsyncStorage.removeItem("femaleCow");
     await AsyncStorage.removeItem("femaleCowCount");
@@ -180,7 +142,6 @@ export default function User({ navigation }) {
     await AsyncStorage.removeItem("removedCow");
     await AsyncStorage.removeItem("removedCowCount");
     await AsyncStorage.removeItem("cowVaccine");
-
     await AsyncStorage.removeItem("goatCount");
     await AsyncStorage.removeItem("femaleGoat");
     await AsyncStorage.removeItem("femaleGoatCount");
@@ -189,7 +150,6 @@ export default function User({ navigation }) {
     await AsyncStorage.removeItem("removedGoat");
     await AsyncStorage.removeItem("removedGoatCount");
     await AsyncStorage.removeItem("goatVaccine");
-
     await AsyncStorage.removeItem("horseCount");
     await AsyncStorage.removeItem("femaleHorse");
     await AsyncStorage.removeItem("femaleHorseCount");
@@ -203,7 +163,6 @@ export default function User({ navigation }) {
     await AsyncStorage.removeItem("herd");
     await AsyncStorage.removeItem("herdCount");
     await AsyncStorage.removeItem("chosenStallion");
-
     await AsyncStorage.removeItem("sheepCount");
     await AsyncStorage.removeItem("femaleSheep");
     await AsyncStorage.removeItem("femaleSheepCount");
@@ -212,65 +171,55 @@ export default function User({ navigation }) {
     await AsyncStorage.removeItem("removedSheep");
     await AsyncStorage.removeItem("removedSheepCount");
     await AsyncStorage.removeItem("sheepVaccine");
-
     navigation.navigate("Login");
   };
 
   return (
     <BackgroundImage>
-      {loading ? (
-        <Loading />
-      ) : (
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={toggleModal}>
-            {photo ? (
-              <Image source={{ uri: photo }} style={styles.image} />
-            ) : (
-              <FontAwesome name="user-o" size={24} color="black" />
-            )}
-          </TouchableOpacity>
-
-          {showSubmitButton && (
-            <SmallButton text={"Зураг хадгалах"} onPress={handleAddPhoto} />
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={toggleModal}>
+          {photo ? (
+            <Image source={{ uri: photo }} style={styles.image} />
+          ) : (
+            <FontAwesome name="user-o" size={24} color="black" />
           )}
-
-          <Text style={styles.title}>{surname + " " + givenName}</Text>
-
-          <MainButton onPress={handleUserInfo} text={"Хувийн мэдээлэл"} />
-
-          <MainButton onPress={handleLogout} text={"Гарах"} />
-
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={isModalVisible}
-            onRequestClose={() => {
-              setIsModalVisible(false);
-            }}
-          >
-            <BackgroundImage>
-              <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                  <TouchableOpacity
-                    onPress={toggleModal}
-                    style={styles.backButton}
-                  >
-                    <Ionicons name="arrow-back" size={24} color="black" />
-                  </TouchableOpacity>
-                  <SubmitButton
-                    text={"Камер нээх"}
-                    onPress={() => pickImage(true)}
-                  />
-                  <SubmitButton
-                    text={"Зураг сонгох"}
-                    onPress={() => pickImage(false)}
-                  />
-                </View>
+        </TouchableOpacity>
+        {showSubmitButton && (
+          <SmallButton text={"Зураг хадгалах"} onPress={handleAddPhoto} />
+        )}
+        <Text style={styles.title}>{surname + " " + givenName}</Text>
+        <MainButton onPress={handleUserInfo} text={"Хувийн мэдээлэл"} />
+        <MainButton onPress={handleLogout} text={"Гарах"} />
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => {
+            setIsModalVisible(false);
+          }}
+        >
+          <BackgroundImage>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  onPress={toggleModal}
+                  style={styles.backButton}
+                >
+                  <Ionicons name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
+                <SubmitButton
+                  text={"Камер нээх"}
+                  onPress={() => pickImage(true)}
+                />
+                <SubmitButton
+                  text={"Зураг сонгох"}
+                  onPress={() => pickImage(false)}
+                />
               </View>
-            </BackgroundImage>
-          </Modal>
-        </View>
-      )}
+            </View>
+          </BackgroundImage>
+        </Modal>
+      </View>
     </BackgroundImage>
   );
 }

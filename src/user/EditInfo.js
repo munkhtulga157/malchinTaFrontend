@@ -23,40 +23,29 @@ export default function EditInfo({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-
-        const json = await AsyncStorage.getItem("data");
-
-        if (json) {
-          const data = JSON.parse(json);
-
-          setSurname(data?.surname || "");
-          setGivenName(data?.givenName || "");
-          setProvince(data?.province || "");
-          setDistrict(data?.district || "");
-          setSubdistrict(data?.subdistrict || "");
-          setPhoneNumber(data?.phoneNumber || "");
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+      setError(null);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
+      }
+      const json = await AsyncStorage.getItem("data");
+      if (json) {
+        const data = JSON.parse(json);
+        setSurname(data?.surname || "");
+        setGivenName(data?.givenName || "");
+        setProvince(data?.province || "");
+        setDistrict(data?.district || "");
+        setSubdistrict(data?.subdistrict || "");
+        setPhoneNumber(data?.phoneNumber || "");
       }
     };
-
     fetchData();
   }, [checkInternetConnection]);
 
   const checkInternetConnection = async () => {
     try {
       const netInfoState = await NetInfo.fetch();
-
       return netInfoState.isConnected && netInfoState.isInternetReachable;
     } catch (error) {
       return false;
@@ -67,13 +56,11 @@ export default function EditInfo({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
         return;
       }
-
       const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
       const response = await axios.put(`${URL}/user/info/${id}`, {
         surname,
@@ -83,10 +70,8 @@ export default function EditInfo({ navigation }) {
         subdistrict,
         phoneNumber,
       });
-
       const json = await response.data.data;
       await AsyncStorage.setItem("data", JSON.stringify(json));
-
       navigation.goBack();
     } catch (error) {
       setError(error.response?.data?.error);
@@ -102,28 +87,21 @@ export default function EditInfo({ navigation }) {
       ) : (
         <View style={styles.container}>
           {error && <ErrorText error={error} />}
-
           <Input text={"Овог"} value={surname} onChangeText={setSurname} />
-
           <Input text={"Нэр"} value={givenName} onChangeText={setGivenName} />
-
           <Input text={"Аймаг"} value={province} onChangeText={setProvince} />
-
           <Input text={"Сум"} value={district} onChangeText={setDistrict} />
-
           <Input
             text={"Баг"}
             value={subdistrict}
             onChangeText={setSubdistrict}
           />
-
           <Input
             text={"Утасны дугаар"}
             value={phoneNumber}
             onChangeText={setPhoneNumber}
             keyboardType={"numeric"}
           />
-
           <SubmitButton onPress={handleEditInfo} text={"Хадгалах"} />
         </View>
       )}
