@@ -3,12 +3,10 @@ import { Modal, View, Text, StyleSheet } from "react-native";
 import { TEXT_FONT, WHITE_COLOR } from "../../configs/Config";
 import BackgroundImage from "../../configs/BackgroundImage";
 import YesNoButton from "../../configs/YesNoButton";
-import ErrorText from "../../configs/ErrorText";
 
 export default function DeleteAnimalModal({
   isVisible,
   closeModal,
-  error,
   handleDelete,
 }) {
   return (
@@ -21,7 +19,6 @@ export default function DeleteAnimalModal({
       <BackgroundImage>
         <View style={styles.container}>
           <View style={styles.content}>
-            {error && <ErrorText error={error} />}
             <Text style={styles.text}>
               Малыг бүртгэлээс устгахдаа итгэлтэй байна уу
             </Text>

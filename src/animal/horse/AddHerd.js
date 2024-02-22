@@ -143,8 +143,8 @@ export default function AddHerd({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
-          <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           {error && <ErrorText error={error} />}
+          <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}

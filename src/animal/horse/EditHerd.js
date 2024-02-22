@@ -46,15 +46,15 @@ export default function EditHerd({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
-        const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-        const response = await axios.get(`${URL}/animal/nonStallion/${id}`);
-        setAnimal(response.data.data);
-        setCount(response.data.count);
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
+      }
+      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+      const response = await axios.get(`${URL}/animal/nonStallion/${id}`);
+      setAnimal(response.data.data);
+      setCount(response.data.count);
     };
     fetchData();
   }, [checkInternetConnection]);
@@ -133,8 +133,8 @@ export default function EditHerd({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
-          <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           {error && <ErrorText error={error} />}
+          <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           <View style={styles.searchBarContainer}>
             <TextInput
               style={styles.searchBar}

@@ -25,6 +25,7 @@ import RemoveAnimalModal from "../modals/RemoveAnimalModal";
 import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
+import ErrorText from "../../configs/ErrorText";
 
 export default function FemaleGoat() {
   const [animal, setAnimal] = useState([]);
@@ -108,11 +109,11 @@ export default function FemaleGoat() {
         "femaleGoatCount",
         JSON.stringify(updatedCount)
       );
-      setModalVisible(false);
     } catch (error) {
       setError(error.response?.data?.error);
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -158,6 +159,7 @@ export default function FemaleGoat() {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           <View style={styles.searchBarContainer}>
             <TextInput
@@ -240,7 +242,6 @@ export default function FemaleGoat() {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleRemove={handleRemove}
-            error={error}
             value={removal}
             setValue={setRemoval}
           />

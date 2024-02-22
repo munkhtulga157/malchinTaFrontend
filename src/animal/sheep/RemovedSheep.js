@@ -25,6 +25,7 @@ import DeleteAnimalModal from "../modals/DeleteAnimalModal";
 import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
+import ErrorText from "../../configs/ErrorText";
 
 export default function RemovedSheep() {
   const [animal, setAnimal] = useState([]);
@@ -94,7 +95,6 @@ export default function RemovedSheep() {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      setError(null);
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
@@ -110,10 +110,10 @@ export default function RemovedSheep() {
         "removedSheepCount",
         JSON.stringify(updatedCount)
       );
-      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -170,6 +170,7 @@ export default function RemovedSheep() {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
 
           <View style={styles.searchBarContainer}>
@@ -258,7 +259,6 @@ export default function RemovedSheep() {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            error={error}
           />
         </View>
       )}

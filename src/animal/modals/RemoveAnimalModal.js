@@ -3,12 +3,10 @@ import { Modal, View, Text, StyleSheet, TextInput } from "react-native";
 import { TEXT_FONT, WHITE_COLOR } from "../../configs/Config";
 import BackgroundImage from "../../configs/BackgroundImage";
 import YesNoButton from "../../configs/YesNoButton";
-import ErrorText from "../../configs/ErrorText";
 
 export default function RemoveAnimalModal({
   isVisible,
   closeModal,
-  error,
   value,
   setValue,
   handleRemove,
@@ -23,7 +21,6 @@ export default function RemoveAnimalModal({
       <BackgroundImage>
         <View style={styles.container}>
           <View style={styles.content}>
-            {error && <ErrorText error={error} />}
             <Text style={styles.text}>Хасалт хийх шалтгаан</Text>
             <TextInput
               style={styles.input}

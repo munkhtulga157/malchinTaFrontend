@@ -26,6 +26,7 @@ import SubmitButton from "../../configs/SubmitButton";
 import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
+import ErrorText from "../../configs/ErrorText";
 
 export default function CamelVaccine({ navigation }) {
   const [vaccine, setVaccine] = useState([]);
@@ -75,7 +76,6 @@ export default function CamelVaccine({ navigation }) {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      setError(null);
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
@@ -88,10 +88,10 @@ export default function CamelVaccine({ navigation }) {
         "camelVaccine",
         JSON.stringify(updatedVaccine)
       );
-      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -124,6 +124,7 @@ export default function CamelVaccine({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <FlatList
             style={styles.listContainer}
             data={vaccine}
@@ -174,7 +175,6 @@ export default function CamelVaccine({ navigation }) {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            error={error}
           />
           <SubmitButton onPress={handleAddVaccine} text={"Вакцин нэмэх"} />
         </View>

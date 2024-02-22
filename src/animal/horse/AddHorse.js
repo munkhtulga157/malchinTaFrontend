@@ -36,11 +36,11 @@ export default function AddHorse({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
+      }
     };
     fetchData();
   }, [checkInternetConnection]);
@@ -81,6 +81,8 @@ export default function AddHorse({ navigation }) {
       formData.append("sex", sex);
       if (sex === "Эр") {
         formData.append("stallion", stallion);
+      } else {
+        formData.append("stallion", false);
       }
       formData.append("age", age);
       formData.append("appearance", appearance);

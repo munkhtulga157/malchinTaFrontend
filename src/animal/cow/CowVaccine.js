@@ -26,6 +26,7 @@ import SubmitButton from "../../configs/SubmitButton";
 import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
+import ErrorText from "../../configs/ErrorText";
 
 export default function CowVaccine({ navigation }) {
   const [vaccine, setVaccine] = useState([]);
@@ -75,7 +76,6 @@ export default function CowVaccine({ navigation }) {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      setError(null);
       const isConnected = await checkInternetConnection();
       if (!isConnected) {
         setError("Интернэт холболтоо шалгана уу");
@@ -85,10 +85,10 @@ export default function CowVaccine({ navigation }) {
       const updatedVaccine = vaccine.filter((item) => item._id !== itemId);
       setVaccine(updatedVaccine);
       await AsyncStorage.setItem("cowVaccine", JSON.stringify(updatedVaccine));
-      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -121,6 +121,7 @@ export default function CowVaccine({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <FlatList
             style={styles.listContainer}
             data={vaccine}
@@ -171,7 +172,6 @@ export default function CowVaccine({ navigation }) {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            error={error}
           />
           <SubmitButton onPress={handleAddVaccine} text={"Вакцин нэмэх"} />
         </View>

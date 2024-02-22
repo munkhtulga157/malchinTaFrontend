@@ -25,6 +25,7 @@ import DeleteHerdModal from "../modals/DeleteHerdModal";
 import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import SubmitButton from "../../configs/SubmitButton";
+import ErrorText from "../../configs/ErrorText";
 
 export default function HorseHerd({ navigation }) {
   const [animal, setAnimal] = useState([]);
@@ -98,10 +99,10 @@ export default function HorseHerd({ navigation }) {
       setCount(updatedCount);
       await AsyncStorage.setItem("stallion", JSON.stringify(updatedAnimal));
       await AsyncStorage.setItem("stallionCount", JSON.stringify(updatedCount));
-      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -143,6 +144,7 @@ export default function HorseHerd({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <Text style={styles.title}>Сүргийн тоо: {count ? count : 0}</Text>
           <View style={styles.searchBarContainer}>
             <TextInput
@@ -208,7 +210,6 @@ export default function HorseHerd({ navigation }) {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            error={error}
           />
         </View>
       )}

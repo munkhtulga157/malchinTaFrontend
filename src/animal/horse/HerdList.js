@@ -26,6 +26,7 @@ import BackgroundImage from "../../configs/BackgroundImage";
 import Loading from "../../configs/Loading";
 import AnimalModal from "../modals/AnimalModal";
 import SubmitButton from "../../configs/SubmitButton";
+import ErrorText from "../../configs/ErrorText";
 
 export default function HerdList({ navigation }) {
   const [animal, setAnimal] = useState([]);
@@ -114,10 +115,10 @@ export default function HerdList({ navigation }) {
       setCount(updatedCount);
       await AsyncStorage.setItem("herd", JSON.stringify(updatedAnimal));
       await AsyncStorage.setItem("herdCount", JSON.stringify(updatedCount));
-      setModalVisible(false);
     } catch (error) {
     } finally {
       setLoading(false);
+      setModalVisible(false);
     }
   };
 
@@ -168,6 +169,7 @@ export default function HerdList({ navigation }) {
         <Loading />
       ) : (
         <View style={styles.container}>
+          {error && <ErrorText error={error} />}
           <Text style={styles.title}>Тоо толгой: {count ? count : 0}</Text>
           <View style={styles.searchBarContainer}>
             <TextInput
@@ -253,7 +255,6 @@ export default function HerdList({ navigation }) {
             isVisible={modalVisible}
             closeModal={handleModalClose}
             handleDelete={handleDelete}
-            error={error}
           />
         </View>
       )}
