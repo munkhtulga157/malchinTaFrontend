@@ -21,11 +21,11 @@ export default function UpdateCountBack({ navigation }) {
 
   useEffect(() => {
     const fetchData = async () => {
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-          setError("Интернэт холболтоо шалгана уу");
-          return;
-        }
+      const isConnected = await checkInternetConnection();
+      if (!isConnected) {
+        setError("Интернэт холболтоо шалгана уу");
+        return;
+      }
     };
     fetchData();
   }, [checkInternetConnection]);

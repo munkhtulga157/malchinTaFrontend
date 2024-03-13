@@ -44,14 +44,14 @@ export default function UpdateCountFront({ navigation }) {
     try {
       setLoading(true);
       setError(null);
-      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
-      const response = await axios.get(`${URL}/count/${id}`);
-      setItemId(response.data.data?._id || null);
-      await axios.delete(`${URL}/count/${itemId}`);
       if (!photo) {
         setError("Зурагаа оруулна уу");
         return;
       }
+      const { _id: id } = JSON.parse(await AsyncStorage.getItem("data"));
+      const response = await axios.get(`${URL}/count/${id}`);
+      setItemId(response.data.data?._id || null);
+      await axios.delete(`${URL}/count/${itemId}`);
       const uriParts = photo.split(".");
       const fileType = uriParts[uriParts.length - 1];
       const formData = new FormData();
